@@ -1,6 +1,6 @@
 # Fronius-Power-Monitor-Android
 
-A Android app for the realtime monitoring of Fronius Power Inverters.
+An Android app for the realtime monitoring of Fronius Power Inverters.
 
 Works directly from an Android device to the solar inverter via your local network / Wifi.
 
