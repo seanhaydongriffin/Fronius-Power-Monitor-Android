@@ -1,4 +1,4 @@
-# Fronius-Power-Monitor-Android
+# Fronius Power Monitor for Android
 
 An Android app for the realtime monitoring of Fronius Power Inverters.
 
