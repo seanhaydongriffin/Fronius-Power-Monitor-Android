@@ -6,7 +6,7 @@ Works directly from an Android device to the solar inverter via your local netwo
 
 ## Requirements
 - a Fronius inverter (tested so far on the Gen24 model)
-- an Android device (ie. iPhone or iPad)
+- an Android device
 
 ## How to Install
 _Note - this app is in early release and not available in the Google Play Store yet_
