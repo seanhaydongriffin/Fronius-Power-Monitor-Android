@@ -1,23 +1,23 @@
 const scriptConfig = { 
-		inverterIpAddress: '192.168.0.109', 
-		gwidth: 200, 
-		gheight: 120, 
-		pfs1limit: 300, 
-		pfs2limit: 1000, 
-		pfs3limit: 4000, 
-		pfs4limit: 8000, 
-		pfs1colour: '#99ff33', 
-		pfs2colour: '#66cc00', 
-		pfs3colour: '#4d9900', 
-		pfs4colour: '#336600', 
-		pfg1limit: 300, 
-		pfg2limit: 1000, 
-		pfg3limit: 4000, 
-		pfg4limit: 8000, 
-		pfg1colour: '#ff9999', 
-		pfg2colour: '#ff0000', 
-		pfg3colour: '#b81414', 
-		pfg4colour: '#660000' 
+    inverterIpAddress: '192.168.0.109', 
+    gwidth: 200, 
+    gheight: 120, 
+    pfs1limit: 300, 
+    pfs2limit: 1000, 
+    pfs3limit: 4000, 
+    pfs4limit: 8000, 
+    pfs1colour: '#99ff33', 
+    pfs2colour: '#66cc00', 
+    pfs3colour: '#4d9900', 
+    pfs4colour: '#336600', 
+    pfg1limit: 300, 
+    pfg2limit: 1000, 
+    pfg3limit: 4000, 
+    pfg4limit: 8000, 
+    pfg1colour: '#ff9999', 
+    pfg2colour: '#ff0000', 
+    pfg3colour: '#b81414', 
+    pfg4colour: '#660000' 
 };
 
 var web;
@@ -58,6 +58,7 @@ var pfg1LimitDef = "300";
 var pfg2LimitDef = "1000";
 var pfg3LimitDef = "4000";
 var pfg4LimitDef = "8000";
+var fSizeDef = "20";
 
 var otcHeightNew = "";
 var gWidthNew = "";
@@ -70,154 +71,119 @@ var pfg1LimitNew = "";
 var pfg2LimitNew = "";
 var pfg3LimitNew = "";
 var pfg4LimitNew = "";
+var fSizeNew = "";
 
 //Called when application is started.
 function OnStart()
 {
-		
-
-    layMain = app.CreateLayout( "linear", "Top,Center"); //"VCenter,FillXY" );
-
+    // Main - Controls
+     //"VCenter,FillXY" );
     web = app.CreateWebView( 1.0, 0.9 );
-    web.SetBackColor( "#3E424B"); //353839"); //2A3439" );
+    web.SetBackColor( "#3E424B" ); //353839"); //2A3439" );
+
+     //"Vertical" );
+    //layDark.SetPadding( 0, 0, 0, 0.05 );
+  
+    btnConfig = app.AddButton( layNav, "Configuration",  0.2, -1, "Alum" ); btnConfig.SetOnTouch( btnConfig_OnTouch );
+    btnEventLog = app.AddButton( layNav, "Event Log",  0.2, -1, "Alum" );
+    txtError = app.CreateText( "[fa-exclamation-circle] Can't find inverter, check IP Address", 0.4, -1, "FontAwesome" )
+    //	txt.SetTextSize( txtSize )
+    //	txt.SetOnTouch( OnTouch )
+    txtError.SetVisibility("Hide");
+
+    // Main - Layouts
+    layMain = app.CreateLayout( "linear", "Top,Center");
+    layNav = app.CreateLayout( "Linear", "Horizontal");
     layMain.AddChild( web );
+    layNav.AddChild( txtError )
+    layMain.AddChild( layNav );
 
-
-layNav = app.CreateLayout( "Linear", "Horizontal"); //"Vertical" );
- //layDark.SetPadding( 0, 0, 0, 0.05 );
-  layMain.AddChild( layNav );
-  
-  btnConfig = app.AddButton( layNav, "Configuration",  0.2, -1, "Alum" );
-  btnConfig.SetOnTouch( btnConfig_OnTouch );
-  
-btnEventLog = app.AddButton( layNav, "Event Log",  0.2, -1, "Alum" );
-
-txtError = app.CreateText( "[fa-exclamation-circle] Can't find inverter, check IP Address", 0.4, -1, "FontAwesome" )
-//	txt.SetTextSize( txtSize )
-//	txt.SetOnTouch( OnTouch )
-txtError.SetVisibility("Hide");
-	layNav.AddChild( txtError )
-   
-,    // Configuration layout
-  	layConfig = app.CreateLayout( "Linear", "FillXY" )
-		layConfig.SetPadding( 0, 0.1, 0, 0 ) 
-		layConfig.SetBackground( "/Sys/Img/GreenBack.jpg" )
-		layConfig.SetVisibility( "Hide" )
-
-   // Configuration - Header
- 	layConfigT = app.CreateLayout( "Linear", "Horizontal,Top" )
-		layConfig.AddChild( layConfigT )
-    
-    btnBack = app.CreateButton( "Back to main", 0.3, 0.06, "gray" )
-		btnBack.SetOnTouch( btnBack_OnTouch )
-		layConfigT.AddChild( btnBack )
-
-		btnRestore = app.CreateButton( "Restore to default", 0.3, 0.06, "gray" )
-		btnRestore.SetOnTouch( btnRestore_OnTouch )
-		layConfigT.AddChild( btnRestore )
-				
-		// Configuration - Layout
-		layConfigH = app.CreateLayout( "Linear", "Horizontal" ); layConfig.AddChild( layConfigH );
-		layConfig1 = app.CreateLayout( "Linear", "Left,Vertical" ); layConfigH.AddChild( layConfig1 );
-    layConfig2 = app.CreateLayout( "Linear", "Vertical" ); layConfigH.AddChild( layConfig2 );
-		
-		// Configuration - Controls
-		txt = app.CreateText( "IP Address", 0.3, 0.05, "Right" ); txt.SetTextSize( 16 ); layConfig1.AddChild( txt );
-    txt2 = app.CreateText( "Over Time Chart Height", 0.3, 0.05, "Right" ); txt2.SetTextSize( 16 ); layConfig1.AddChild( txt2 );
-    txt3 = app.CreateText( "Gauges Width (px)", 0.3, 0.05, "Right" ); txt3.SetTextSize( 16 ); layConfig1.AddChild( txt3 );
-    txt4 = app.CreateText( "Gauges Height (px)", 0.3, 0.05, "Right" ); txt4.SetTextSize( 16 ); layConfig1.AddChild( txt4 );
-    txt5 = app.CreateText( "Power From Solar Limit 1 (W)", 0.3, 0.05, "Right" ); txt5.SetTextSize( 16 ); layConfig1.AddChild( txt5 );
-    txt6 = app.CreateText( "Power From Solar Limit 2 (W)", 0.3, 0.05, "Right" ); txt6.SetTextSize( 16 ); layConfig1.AddChild( txt6 );
-    txt7 = app.CreateText( "Power From Solar Limit 3 (W)", 0.3, 0.05, "Right" ); txt7.SetTextSize( 16 ); layConfig1.AddChild( txt7 );
-    txt8 = app.CreateText( "Power From Solar Limit 4 (W)", 0.3, 0.05, "Right" ); txt8.SetTextSize( 16 ); layConfig1.AddChild( txt8 );
-    txt9 = app.CreateText( "Power From Grid Limit 1 (W)", 0.3, 0.05, "Right" ); txt9.SetTextSize( 16 ); layConfig1.AddChild( txt9 );
-    txt10 = app.CreateText( "Power From Grid Limit 2 (W)", 0.3, 0.05, "Right" ); txt10.SetTextSize( 16 ); layConfig1.AddChild( txt10 );
-    txt11 = app.CreateText( "Power From Grid Limit 3 (W)", 0.3, 0.05, "Right" ); txt11.SetTextSize( 16 ); layConfig1.AddChild( txt11 );
-    txt12 = app.CreateText( "Power From Grid Limit 4 (W)", 0.3, 0.05, "Right" ); txt12.SetTextSize( 16 ); layConfig1.AddChild( txt12 );
-    
-		  
-		ipAddEdt = app.CreateTextEdit( app.LoadText( "ipAddress", ipAddDef, fCfg ), 0.2, 0.05, "SingleLine" );
-		ipAddEdt.SetTextColor( "#ffffffff" ); ipAddEdt.SetBackColor( "black" ); ipAddEdt.SetOnChange( ipAddEdt_OnChange );
-    layConfig2.AddChild( ipAddEdt );
-
-		otcHeightEdt = app.CreateTextEdit( app.LoadText("overTimeChartHeight", otcHeightDef, fCfg), 0.2, 0.05, "SingleLine" );
-		otcHeightEdt.SetTextColor( "#ffffffff" ); otcHeightEdt.SetBackColor( "black" ); otcHeightEdt.SetOnChange( otcHeightEdt_OnChange );
-    layConfig2.AddChild( otcHeightEdt );
-	
-		gWidthEdt = app.CreateTextEdit( app.LoadText("gWidth", gWidthDef, fCfg), 0.2, 0.05, "SingleLine" );
-		gWidthEdt.SetTextColor( "#ffffffff" ); gWidthEdt.SetBackColor( "black" ); gWidthEdt.SetOnChange( gWidthEdt_OnChange );
-    layConfig2.AddChild( gWidthEdt );
-
-  	gHeightEdt = app.CreateTextEdit( app.LoadText("gHeight", gHeightDef, fCfg), 0.2, 0.05, "SingleLine" );
-		gHeightEdt.SetTextColor( "#ffffffff" ); gHeightEdt.SetBackColor( "black" ); gHeightEdt.SetOnChange( gHeightEdt_OnChange );
-    layConfig2.AddChild( gHeightEdt );
-
-  	pfs1LimitEdt = app.CreateTextEdit( app.LoadText("pfs1Limit", pfs1LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfs1LimitEdt.SetTextColor( "#ffffffff" ); pfs1LimitEdt.SetBackColor( "black" ); pfs1LimitEdt.SetOnChange( pfs1LimitEdt_OnChange );
-    layConfig2.AddChild( pfs1LimitEdt );
-
-  	pfs2LimitEdt = app.CreateTextEdit( app.LoadText("pfs2Limit", pfs2LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfs2LimitEdt.SetTextColor( "#ffffffff" ); pfs2LimitEdt.SetBackColor( "black" ); pfs2LimitEdt.SetOnChange( pfs2LimitEdt_OnChange );
-    layConfig2.AddChild( pfs2LimitEdt );
-
-  	pfs3LimitEdt = app.CreateTextEdit( app.LoadText("pfs3Limit", pfs3LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfs3LimitEdt.SetTextColor( "#ffffffff" ); pfs3LimitEdt.SetBackColor( "black" ); pfs3LimitEdt.SetOnChange( pfs3LimitEdt_OnChange );
-    layConfig2.AddChild( pfs3LimitEdt );
-
-  	pfs4LimitEdt = app.CreateTextEdit( app.LoadText("pfs4Limit", pfs4LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfs4LimitEdt.SetTextColor( "#ffffffff" ); pfs4LimitEdt.SetBackColor( "black" ); pfs4LimitEdt.SetOnChange( pfs4LimitEdt_OnChange );
-    layConfig2.AddChild( pfs4LimitEdt );
-
-  	pfg1LimitEdt = app.CreateTextEdit( app.LoadText("pfg1Limit", pfg1LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfg1LimitEdt.SetTextColor( "#ffffffff" ); pfg1LimitEdt.SetBackColor( "black" ); pfg1LimitEdt.SetOnChange( pfg1LimitEdt_OnChange );
-    layConfig2.AddChild( pfg1LimitEdt );
-
-  	pfg2LimitEdt = app.CreateTextEdit( app.LoadText("pfg2Limit", pfg2LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfg2LimitEdt.SetTextColor( "#ffffffff" ); pfg2LimitEdt.SetBackColor( "black" ); pfg2LimitEdt.SetOnChange( pfg2LimitEdt_OnChange );
-    layConfig2.AddChild( pfg2LimitEdt );
-
-  	pfg3LimitEdt = app.CreateTextEdit( app.LoadText("pfg3Limit", pfg3LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfg3LimitEdt.SetTextColor( "#ffffffff" ); pfg3LimitEdt.SetBackColor( "black" ); pfg3LimitEdt.SetOnChange( pfg3LimitEdt_OnChange );
-    layConfig2.AddChild( pfg3LimitEdt );
-
-  	pfg4LimitEdt = app.CreateTextEdit( app.LoadText("pfg4Limit", pfg4LimitDef, fCfg), 0.2, 0.05, "SingleLine" );
-		pfg4LimitEdt.SetTextColor( "#ffffffff" ); pfg4LimitEdt.SetBackColor( "black" ); pfg4LimitEdt.SetOnChange( pfg4LimitEdt_OnChange );
-    layConfig2.AddChild( pfg4LimitEdt );
-	
-		bgndChk = app.CreateCheckBox( "Run in background" );
-		bgndChk.SetChecked( app.LoadBoolean( "runInBackground", false, fCfg ) );
-	  bgndChk.SetOnTouch( bgndChk_OnTouch );
+    // Configuration - Controls
+    btnBack = app.CreateButton( "Back to main", 0.5, 0.06, "gray" )
+    btnBack.SetOnTouch( btnBack_OnTouch )
+    btnRestore = app.CreateButton( "Restore to default", 0.5, 0.06, "gray" )
+    btnRestore.SetOnTouch( btnRestore_OnTouch )
+    // Columns
+    cHeightCtl = 0.05;
+    cTxtSizeCtl = 14;
+    // Column 1
+    c1WidthTxt = 0.5;
+    txt = app.CreateText( "IP Address", c1WidthTxt, cHeightCtl, "Right" ); txt.SetTextSize( cTxtSizeCtl ); 
+    txt2 = app.CreateText( "Over Time Chart Height", c1WidthTxt, cHeightCtl, "Right" ); txt2.SetTextSize( cTxtSizeCtl );
+    txt3 = app.CreateText( "Gauges Width (px)", c1WidthTxt, cHeightCtl, "Right" ); txt3.SetTextSize( cTxtSizeCtl );
+    txt4 = app.CreateText( "Gauges Height (px)", c1WidthTxt, cHeightCtl, "Right" ); txt4.SetTextSize( cTxtSizeCtl );
+    txt5 = app.CreateText( "Power From Solar Limit 1 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt5.SetTextSize( cTxtSizeCtl );
+    txt6 = app.CreateText( "Power From Solar Limit 2 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt6.SetTextSize( cTxtSizeCtl );
+    txt7 = app.CreateText( "Power From Solar Limit 3 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt7.SetTextSize( cTxtSizeCtl );
+    txt8 = app.CreateText( "Power From Solar Limit 4 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt8.SetTextSize( cTxtSizeCtl );
+    txt9 = app.CreateText( "Power From Grid Limit 1 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt9.SetTextSize( cTxtSizeCtl );
+    txt10 = app.CreateText( "Power From Grid Limit 2 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt10.SetTextSize( cTxtSizeCtl );
+    txt11 = app.CreateText( "Power From Grid Limit 3 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt11.SetTextSize( cTxtSizeCtl );
+    txt12 = app.CreateText( "Power From Grid Limit 4 (W)", c1WidthTxt, cHeightCtl, "Right" ); txt12.SetTextSize( cTxtSizeCtl );
+    txt13 = app.CreateText( "Font Size (px)", c1WidthTxt, cHeightCtl, "Right" ); txt13.SetTextSize( cTxtSizeCtl );
+    // Column 2
+    c2WidthTxt = 0.5;
+    ipAddEdt = app.CreateTextEdit( app.LoadText( "ipAddress", ipAddDef, fCfg ), c2WidthTxt, cHeightCtl, "SingleLine" );
+    ipAddEdt.SetTextSize( cTxtSizeCtl ); ipAddEdt.SetTextColor( "#ffffffff" ); ipAddEdt.SetBackColor( "black" ); ipAddEdt.SetOnChange( ipAddEdt_OnChange );
+    otcHeightEdt = app.CreateTextEdit( app.LoadText("overTimeChartHeight", otcHeightDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    otcHeightEdt.SetTextSize( cTxtSizeCtl ); otcHeightEdt.SetTextColor( "#ffffffff" ); otcHeightEdt.SetBackColor( "black" ); otcHeightEdt.SetOnChange( otcHeightEdt_OnChange );
+    gWidthEdt = app.CreateTextEdit( app.LoadText("gWidth", gWidthDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    gWidthEdt.SetTextSize( cTxtSizeCtl ); gWidthEdt.SetTextColor( "#ffffffff" ); gWidthEdt.SetBackColor( "black" ); gWidthEdt.SetOnChange( gWidthEdt_OnChange );
+    gHeightEdt = app.CreateTextEdit( app.LoadText("gHeight", gHeightDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    gHeightEdt.SetTextSize( cTxtSizeCtl ); gHeightEdt.SetTextColor( "#ffffffff" ); gHeightEdt.SetBackColor( "black" ); gHeightEdt.SetOnChange( gHeightEdt_OnChange );
+    pfs1LimitEdt = app.CreateTextEdit( app.LoadText("pfs1Limit", pfs1LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfs1LimitEdt.SetTextSize( cTxtSizeCtl ); pfs1LimitEdt.SetTextColor( "#ffffffff" ); pfs1LimitEdt.SetBackColor( "black" ); pfs1LimitEdt.SetOnChange( pfs1LimitEdt_OnChange );
+    pfs2LimitEdt = app.CreateTextEdit( app.LoadText("pfs2Limit", pfs2LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfs2LimitEdt.SetTextSize( cTxtSizeCtl ); pfs2LimitEdt.SetTextColor( "#ffffffff" ); pfs2LimitEdt.SetBackColor( "black" ); pfs2LimitEdt.SetOnChange( pfs2LimitEdt_OnChange );
+    pfs3LimitEdt = app.CreateTextEdit( app.LoadText("pfs3Limit", pfs3LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfs3LimitEdt.SetTextSize( cTxtSizeCtl ); pfs3LimitEdt.SetTextColor( "#ffffffff" ); pfs3LimitEdt.SetBackColor( "black" ); pfs3LimitEdt.SetOnChange( pfs3LimitEdt_OnChange );
+    pfs4LimitEdt = app.CreateTextEdit( app.LoadText("pfs4Limit", pfs4LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfs4LimitEdt.SetTextSize( cTxtSizeCtl ); pfs4LimitEdt.SetTextColor( "#ffffffff" ); pfs4LimitEdt.SetBackColor( "black" ); pfs4LimitEdt.SetOnChange( pfs4LimitEdt_OnChange );
+    pfg1LimitEdt = app.CreateTextEdit( app.LoadText("pfg1Limit", pfg1LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfg1LimitEdt.SetTextSize( cTxtSizeCtl ); pfg1LimitEdt.SetTextColor( "#ffffffff" ); pfg1LimitEdt.SetBackColor( "black" ); pfg1LimitEdt.SetOnChange( pfg1LimitEdt_OnChange );
+    pfg2LimitEdt = app.CreateTextEdit( app.LoadText("pfg2Limit", pfg2LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfg2LimitEdt.SetTextSize( cTxtSizeCtl ); pfg2LimitEdt.SetTextColor( "#ffffffff" ); pfg2LimitEdt.SetBackColor( "black" ); pfg2LimitEdt.SetOnChange( pfg2LimitEdt_OnChange );
+    pfg3LimitEdt = app.CreateTextEdit( app.LoadText("pfg3Limit", pfg3LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfg3LimitEdt.SetTextSize( cTxtSizeCtl ); pfg3LimitEdt.SetTextColor( "#ffffffff" ); pfg3LimitEdt.SetBackColor( "black" ); pfg3LimitEdt.SetOnChange( pfg3LimitEdt_OnChange );
+    pfg4LimitEdt = app.CreateTextEdit( app.LoadText("pfg4Limit", pfg4LimitDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    pfg4LimitEdt.SetTextSize( cTxtSizeCtl ); pfg4LimitEdt.SetTextColor( "#ffffffff" ); pfg4LimitEdt.SetBackColor( "black" ); pfg4LimitEdt.SetOnChange( pfg4LimitEdt_OnChange );
+    fSizeEdt = app.CreateTextEdit( app.LoadText("fSize", fSizeDef, fCfg), c2WidthTxt, cHeightCtl, "SingleLine" );
+    fSizeEdt.SetTextSize( cTxtSizeCtl ); fSizeEdt.SetTextColor( "#ffffffff" ); fSizeEdt.SetBackColor( "black" ); fSizeEdt.SetOnChange( fSizeEdt_OnChange );
+    bgndChk = app.CreateCheckBox( "Monitor in the background" );
+    bgndChk.SetChecked( app.LoadBoolean( "runInBackground", false, fCfg ) );
+    bgndChk.SetOnTouch( bgndChk_OnTouch );
+            
+    // Configuration - Layouts
+    layConfig = app.CreateLayout( "Linear", "FillXY" ); layConfig.SetPadding( 0, 0.1, 0, 0 );
+    layConfig.SetBackground( "/Sys/Img/GreenBack.jpg" ); layConfig.SetVisibility( "Hide" );
+    layConfigT = app.CreateLayout( "Linear", "Horizontal,Top" );
+    layConfigH = app.CreateLayout( "Linear", "Horizontal" ); 
+    layConfig1 = app.CreateLayout( "Linear", "Left,Vertical" ); 
+    layConfig2 = app.CreateLayout( "Linear", "Vertical" ); 
+    layConfig.AddChild( layConfigT );
+    layConfigT.AddChild( btnBack )
+    layConfigT.AddChild( btnRestore )
+    layConfig.AddChild( layConfigH );
+    layConfigH.AddChild( layConfig1 );
+    layConfig1.AddChild( txt ); layConfig1.AddChild( txt2 ); layConfig1.AddChild( txt3 ); layConfig1.AddChild( txt4 );
+    layConfig1.AddChild( txt5 ); layConfig1.AddChild( txt6 ); layConfig1.AddChild( txt7 ); layConfig1.AddChild( txt8 );
+    layConfig1.AddChild( txt9 ); layConfig1.AddChild( txt10 ); layConfig1.AddChild( txt11 ); layConfig1.AddChild( txt12 );
+    layConfigH.AddChild( layConfig2 );
+    layConfig2.AddChild( ipAddEdt ); layConfig2.AddChild( otcHeightEdt ); layConfig2.AddChild( gWidthEdt ); layConfig2.AddChild( gHeightEdt );
+    layConfig2.AddChild( pfs1LimitEdt ); layConfig2.AddChild( pfs2LimitEdt ); layConfig2.AddChild( pfs3LimitEdt ); layConfig2.AddChild( pfs4LimitEdt );
+    layConfig2.AddChild( pfg1LimitEdt ); layConfig2.AddChild( pfg2LimitEdt ); layConfig2.AddChild( pfg3LimitEdt ); layConfig2.AddChild( pfg4LimitEdt );
     layConfig2.AddChild( bgndChk );
-		
-	
-    //Add layouts to app.
-    app.AddLayout( layMain )
-	  app.AddLayout( layConfig )
+        
+    // App - Layouts
+    app.AddLayout( layMain );
+    app.AddLayout( layConfig );
     
     web.LoadHtml( html, "file:///Sys/" );
      
-     
-    //callbackFunction("fred");
-    
-    
-    
-
-
-	//Create a layout with objects vertically centered.
-//	lay = app.CreateLayout( "Linear", "VCenter,FillXY" )
-
-	//Create a text label and add it to layout.
-//	txt = app.CreateText( "Hello" )
-//	txt.SetTextSize( 32 )
-//	lay.AddChild( txt )
-	
-	//Add layout to app.	
-//	app.AddLayout( lay )
 }
 
 function ipAddEdt_OnChange()
 {
-	
     app.SaveText( "ipAddress", ipAddEdt.GetText(), fCfg );
 }
 
@@ -232,55 +198,50 @@ function pfg1LimitEdt_OnChange() { pfg1LimitNew = pfg1LimitEdt.GetText(); app.Sa
 function pfg2LimitEdt_OnChange() { pfg2LimitNew = pfg2LimitEdt.GetText(); app.SaveText( "pfg2Limit", pfg2LimitNew, fCfg ); }
 function pfg3LimitEdt_OnChange() { pfg3LimitNew = pfg3LimitEdt.GetText(); app.SaveText( "pfg3Limit", pfg3LimitNew, fCfg ); }
 function pfg4LimitEdt_OnChange() { pfg4LimitNew = pfg4LimitEdt.GetText(); app.SaveText( "pfg4Limit", pfg4LimitNew, fCfg ); }
-
-
+function fSizeEdt_OnChange() { fSizeNew = fSizeEdt.GetText(); app.SaveText( "fSize", fSizeNew, fCfg ); }
 
 function bgndChk_OnTouch()
 {
-		app.SaveBoolean("runInBackground", bgndChk.GetChecked(), fCfg );
+    app.SaveBoolean("runInBackground", bgndChk.GetChecked(), fCfg );
 }
 
 function btnConfig_OnTouch()
 {
-	layConfig.Animate( "SlideFromRight" )
+    layConfig.Animate( "SlideFromRight" )
 }
 
 function btnBack_OnTouch()
 {
-	layConfig.Animate( "SlideToRight" )	
+    layConfig.Animate( "SlideToRight" )	
 }
 
 function btnRestore_OnTouch()
 {
-		ipAddEdt.SetText(ipAddDef);
+    ipAddEdt.SetText(ipAddDef);
 
-		otcHeightNew = otcHeightDef;	otcHeightEdt.SetText(otcHeightNew); app.SaveText( "overTimeChartHeight", otcHeightNew, fCfg );
-		gWidthNew = gWidthDef;	gWidthEdt.SetText(gWidthNew); app.SaveText( "gWidth", gWidthNew, fCfg );
-		gHeightNew = gHeightDef;	gHeightEdt.SetText(gHeightNew); app.SaveText( "gHeight", gHeightNew, fCfg );
-		pfs1LimitNew = pfs1LimitDef;	pfs1LimitEdt.SetText(pfs1LimitNew); app.SaveText( "pfs1Limit", pfs1LimitNew, fCfg );
-		pfs2LimitNew = pfs2LimitDef;	pfs2LimitEdt.SetText(pfs2LimitNew); app.SaveText( "pfs2Limit", pfs2LimitNew, fCfg );
-		pfs3LimitNew = pfs3LimitDef;	pfs3LimitEdt.SetText(pfs3LimitNew); app.SaveText( "pfs3Limit", pfs3LimitNew, fCfg );
-		pfs4LimitNew = pfs4LimitDef;	pfs4LimitEdt.SetText(pfs4LimitNew); app.SaveText( "pfs4Limit", pfs4LimitNew, fCfg );
-		pfg1LimitNew = pfg1LimitDef;	pfg1LimitEdt.SetText(pfg1LimitNew); app.SaveText( "pfg1Limit", pfg1LimitNew, fCfg );
-		pfg2LimitNew = pfg2LimitDef;	pfg2LimitEdt.SetText(pfg2LimitNew); app.SaveText( "pfg2Limit", pfg2LimitNew, fCfg );
-		pfg3LimitNew = pfg3LimitDef;	pfg3LimitEdt.SetText(pfg3LimitNew); app.SaveText( "pfg3Limit", pfg3LimitNew, fCfg );
-		pfg4LimitNew = pfg4LimitDef;	pfg4LimitEdt.SetText(pfg4LimitNew); app.SaveText( "pfg4Limit", pfg4LimitNew, fCfg );
-	
+    otcHeightNew = otcHeightDef;	otcHeightEdt.SetText(otcHeightNew); app.SaveText( "overTimeChartHeight", otcHeightNew, fCfg );
+    gWidthNew = gWidthDef;	gWidthEdt.SetText(gWidthNew); app.SaveText( "gWidth", gWidthNew, fCfg );
+    gHeightNew = gHeightDef;	gHeightEdt.SetText(gHeightNew); app.SaveText( "gHeight", gHeightNew, fCfg );
+    pfs1LimitNew = pfs1LimitDef;	pfs1LimitEdt.SetText(pfs1LimitNew); app.SaveText( "pfs1Limit", pfs1LimitNew, fCfg );
+    pfs2LimitNew = pfs2LimitDef;	pfs2LimitEdt.SetText(pfs2LimitNew); app.SaveText( "pfs2Limit", pfs2LimitNew, fCfg );
+    pfs3LimitNew = pfs3LimitDef;	pfs3LimitEdt.SetText(pfs3LimitNew); app.SaveText( "pfs3Limit", pfs3LimitNew, fCfg );
+    pfs4LimitNew = pfs4LimitDef;	pfs4LimitEdt.SetText(pfs4LimitNew); app.SaveText( "pfs4Limit", pfs4LimitNew, fCfg );
+    pfg1LimitNew = pfg1LimitDef;	pfg1LimitEdt.SetText(pfg1LimitNew); app.SaveText( "pfg1Limit", pfg1LimitNew, fCfg );
+    pfg2LimitNew = pfg2LimitDef;	pfg2LimitEdt.SetText(pfg2LimitNew); app.SaveText( "pfg2Limit", pfg2LimitNew, fCfg );
+    pfg3LimitNew = pfg3LimitDef;	pfg3LimitEdt.SetText(pfg3LimitNew); app.SaveText( "pfg3Limit", pfg3LimitNew, fCfg );
+    pfg4LimitNew = pfg4LimitDef;	pfg4LimitEdt.SetText(pfg4LimitNew); app.SaveText( "pfg4Limit", pfg4LimitNew, fCfg );
+    fSizeNew = fSizeDef;	fSizeEdt.SetText(fSizeNew); app.SaveText( "fSize", fSizeNew, fCfg );
+    
 }
 
 function Start()
 {
-//alert("here");
-//web.Execute( "document.getElementById('inverterAddress').value;", callbackFunction );
-     //web.Execute("scriptConfig.inverterAddress;", callbackFunction);
-    
     chartTimer = setInterval(function() {
     
-     if (runningInForeground || (!runningInForeground && bgndChk.GetChecked()))
-    		app.HttpRequest( "GET", 'http://' + ipAddEdt.GetText() + '/solar_api/v1/GetPowerFlowRealtimeData.fcgi', null, null, handleReply );
+        if (runningInForeground || (!runningInForeground && bgndChk.GetChecked()))
+            app.HttpRequest( "GET", 'http://' + ipAddEdt.GetText() + '/solar_api/v1/GetPowerFlowRealtimeData.fcgi', null, null, handleReply );
     
     }, 1000);
-    
 }
 
 
@@ -291,11 +252,9 @@ function handleReply( error, reply )
     else
     {
     
-    		txtError.SetVisibility("Hide");
-    		var d = new Date();
+        txtError.SetVisibility("Hide");
+        var d = new Date();
         var newLabel = d.toLocaleTimeString();
-        
-        
         
         var result = JSON.parse(reply); 
         var p_load = Math.abs(result.Body.Data.Site.P_Load);
@@ -303,31 +262,28 @@ function handleReply( error, reply )
         var p_grid_to_grid = 0;
         
         if (result.Body.Data.Site.P_Grid < 0)
-        	p_grid_to_grid = Math.abs(result.Body.Data.Site.P_Grid);
+            p_grid_to_grid = Math.abs(result.Body.Data.Site.P_Grid);
         else
-        	p_grid_from_grid = Math.abs(result.Body.Data.Site.P_Grid);
-        	
+            p_grid_from_grid = Math.abs(result.Body.Data.Site.P_Grid);
+            
         var p_from_solar = p_load - p_grid_from_grid;
         
-        //var cmd = 'addData(overTimeChart, "' + newLabel + '", ' + p_load + ', ' + p_from_solar + ', ' + p_grid_from_grid + ', ' + p_grid_to_grid + ');' 
-        //alert(cmd);
-
         try
         {        
-        web.Execute( 'addData(overTimeChart, "' + newLabel + '", ' + p_load + ', ' + p_from_solar + ', ' + p_grid_from_grid + ', ' + p_grid_to_grid + ');' )
-        web.Execute('addGaugeData(fromGridGauge, ' + p_grid_from_grid + ');');
-        web.Execute("document.getElementById('powerFromGrid').textContent = '" + Math.floor(p_grid_from_grid) + "W';");
-        web.Execute('addGaugeData(fromSolarGauge, ' + (p_from_solar+p_grid_to_grid) + ');');
-        web.Execute("document.getElementById('powerFromSolar').textContent = '" + Math.floor(p_from_solar+p_grid_to_grid) + "W';");
+            web.Execute( 'addData(overTimeChart, "' + newLabel + '", ' + p_load + ', ' + p_from_solar + ', ' + p_grid_from_grid + ', ' + p_grid_to_grid + ');' )
+            web.Execute('addGaugeData(fromGridGauge, ' + p_grid_from_grid + ');');
+            web.Execute("document.getElementById('powerFromGrid').textContent = '" + Math.floor(p_grid_from_grid) + "W';");
+            web.Execute('addGaugeData(fromSolarGauge, ' + (p_from_solar+p_grid_to_grid) + ');');
+            web.Execute("document.getElementById('powerFromSolar').textContent = '" + Math.floor(p_from_solar+p_grid_to_grid) + "W';");
         } catch (err) {}
 
         if (otcHeightNew != "") { web.Execute("document.getElementById('overTimeDiv').style.height = '" + otcHeightNew + "';"); otcHeightNew = ""; }
         if (gWidthNew != "") { 
-        		web.Execute("document.getElementById('fromSolarGauge').width = '" + gWidthNew + "';"); 
-        		web.Execute("document.getElementById('fromGridGauge').width = '" + gWidthNew + "';"); gWidthNew = ""; }
+                web.Execute("document.getElementById('fromSolarGauge').width = '" + gWidthNew + "';"); 
+                web.Execute("document.getElementById('fromGridGauge').width = '" + gWidthNew + "';"); gWidthNew = ""; }
         if (gHeightNew != "") { 
-        		web.Execute("document.getElementById('fromSolarGauge').height = '" + gHeightNew + "';");  
-        		web.Execute("document.getElementById('fromGridGauge').height = '" + gHeightNew + "';"); gHeightNew = ""; }
+                web.Execute("document.getElementById('fromSolarGauge').height = '" + gHeightNew + "';");  
+                web.Execute("document.getElementById('fromGridGauge').height = '" + gHeightNew + "';"); gHeightNew = ""; }
                         
         if (pfs1LimitNew != "") { web.Execute("fromSolarGauge.data.datasets[0].data[0] = " + pfs1LimitNew + "; fromSolarGauge.update();"); pfs1LimitNew = ""; }
         if (pfs2LimitNew != "") { web.Execute("fromSolarGauge.data.datasets[0].data[1] = " + pfs2LimitNew + "; fromSolarGauge.update();"); pfs2LimitNew = ""; }
@@ -337,9 +293,10 @@ function handleReply( error, reply )
         if (pfg2LimitNew != "") { web.Execute("fromGridGauge.data.datasets[0].data[1] = " + pfg2LimitNew + "; fromGridGauge.update();"); pfg2LimitNew = ""; }
         if (pfg3LimitNew != "") { web.Execute("fromGridGauge.data.datasets[0].data[2] = " + pfg3LimitNew + "; fromGridGauge.update();"); pfg3LimitNew = ""; }
         if (pfg4LimitNew != "") { web.Execute("fromGridGauge.data.datasets[0].data[3] = " + pfg4LimitNew + "; fromGridGauge.update();"); pfg4LimitNew = ""; }
-
-                    
-                                                
+        if (fSizeNew != "") { 
+            web.Execute("document.getElementById('powerFromSolar').style.font-size = '" + fSizeNew + "px';");
+            web.Execute("document.getElementById('powerFromGrid').style.font-size = '" + fSizeNew + "px';");
+            web.Execute("Chart.defaults.font.size = " + fSizeNew + "; fromGridGauge.update();"); fSizeNew = ""; }
                                                                                                 
     }
 }
@@ -354,15 +311,6 @@ function OnResume()
 {
     runningInForeground = true;
 }
-
-
-
-//function callbackFunction( value )
-//{
- //   app.ShowPopup(value);
-//}
-
-
 
 let html = `
 <!DOCTYPE html>
@@ -379,7 +327,7 @@ html, body {
     align-items: center;
 }
 .gauge-title {
-    display: inline-block; width: 200px; white-space: nowrap; font-weight: bold; color: dimgray; text-align: center; font-size: 22px;
+    display: inline-block; width: 200px; white-space: nowrap; font-weight: bold; color: dimgray; text-align: center; font-size: ${app.LoadText('fSize', fSizeDef, fCfg)}px;
 }
 .gauge-power {
     background-color: black; color: white; border-radius: 10px; padding: 5px;
@@ -409,14 +357,14 @@ html, body {
 
     <div id="overTimeDiv" style="height: ${app.LoadText('overTimeChartHeight', otcHeightDef, fCfg)}; width: 100%;"><canvas id="overTimeChart"></canvas></div>
     
-	<div class="canvas-container">
+    <div class="canvas-container">
         <div><span class="gauge-title">Power From Solar <span id="powerFromSolar" class="gauge-power"></span></span></div>
         <div><span class="gauge-title">Power From Grid <span id="powerFromGrid" class="gauge-power"></span></span></div>
-	</div>
-	<div class="canvas-container">
+    </div>
+    <div class="canvas-container">
         <div><canvas id="fromSolarGauge" width="${app.LoadText('gWidth', gWidthDef, fCfg)}" height="${app.LoadText('gHeight', gHeightDef, fCfg)}"></canvas></div>
         <div><canvas id="fromGridGauge" width="${app.LoadText('gWidth', gWidthDef, fCfg)}" height="${app.LoadText('gHeight', gHeightDef, fCfg)}"></canvas></div>
-	</div>
+    </div>
 
 
 <script>
@@ -435,7 +383,7 @@ html, body {
 
 const canvas = document.getElementById('overTimeChart');
 const labels = [];
-Chart.defaults.font.size = 20;
+Chart.defaults.font.size = ${app.LoadText('fSize', fSizeDef, fCfg)};
 
 const data = {
     labels: labels,
@@ -540,7 +488,7 @@ function addGaugeData(chart, newdata) {
         type: 'gauge',
         data: {
             datasets: [
-            		{ data: [${app.LoadText('pfg1Limit', pfg1LimitDef, fCfg)}, ${app.LoadText('pfg2Limit', pfg2LimitDef, fCfg)}, ${app.LoadText('pfg3Limit', pfg3LimitDef, fCfg)}, ${app.LoadText('pfg4Limit', pfg4LimitDef, fCfg)}], value: 1, backgroundColor: ["${scriptConfig.pfg1colour}", "${scriptConfig.pfg2colour}", "${scriptConfig.pfg3colour}", "${scriptConfig.pfg4colour}"], borderWidth: 2 }]
+                    { data: [${app.LoadText('pfg1Limit', pfg1LimitDef, fCfg)}, ${app.LoadText('pfg2Limit', pfg2LimitDef, fCfg)}, ${app.LoadText('pfg3Limit', pfg3LimitDef, fCfg)}, ${app.LoadText('pfg4Limit', pfg4LimitDef, fCfg)}], value: 1, backgroundColor: ["${scriptConfig.pfg1colour}", "${scriptConfig.pfg2colour}", "${scriptConfig.pfg3colour}", "${scriptConfig.pfg4colour}"], borderWidth: 2 }]
         },
         options: {
             responsive: false,
@@ -553,7 +501,7 @@ function addGaugeData(chart, newdata) {
         type: 'gauge',
         data: {
             datasets: [
-            		{ data: [${app.LoadText('pfs1Limit', pfs1LimitDef, fCfg)}, ${app.LoadText('pfs2Limit', pfs2LimitDef, fCfg)}, ${app.LoadText('pfs3Limit', pfs3LimitDef, fCfg)}, ${app.LoadText('pfs4Limit', pfs4LimitDef, fCfg)}], value: 1, backgroundColor: ["${scriptConfig.pfs1colour}", "${scriptConfig.pfs2colour}", "${scriptConfig.pfs3colour}", "${scriptConfig.pfs4colour}"], borderWidth: 2 }]
+                    { data: [${app.LoadText('pfs1Limit', pfs1LimitDef, fCfg)}, ${app.LoadText('pfs2Limit', pfs2LimitDef, fCfg)}, ${app.LoadText('pfs3Limit', pfs3LimitDef, fCfg)}, ${app.LoadText('pfs4Limit', pfs4LimitDef, fCfg)}], value: 1, backgroundColor: ["${scriptConfig.pfs1colour}", "${scriptConfig.pfs2colour}", "${scriptConfig.pfs3colour}", "${scriptConfig.pfs4colour}"], borderWidth: 2 }]
         },
         options: {
             responsive: false,
@@ -572,12 +520,9 @@ function addGaugeData(chart, newdata) {
 
 </script>
 
-
 <script>
 app.Execute( "Start();" );
 </script>
-
-
 
 </body>
 </html>`;
